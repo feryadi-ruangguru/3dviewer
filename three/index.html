@@ -11,7 +11,17 @@
 </head>
 <body>
 <script type="module">
-    import {Scene, WebGLRenderer, PerspectiveCamera, AxesHelper, PointLight} from './js/three.module.js'
+    import {
+        Scene,
+        WebGLRenderer,
+        PerspectiveCamera,
+        AxesHelper,
+        PointLight,
+        AmbientLight,
+        DirectionalLight,
+        Color,
+        Object3D
+    } from './js/three.module.js'
     import {OBJLoader} from './js/objloader.module.js'
     import {OrbitControls} from "./js/orbitcontrols.module.js";
     import Stats from "./js/stats.module.js";
@@ -21,9 +31,14 @@
     const scene = new Scene()
     scene.add(new AxesHelper(5))
 
-    const light = new PointLight()
-    light.position.set(2.5, 7.5, 15)
-    scene.add(light)
+    // const light = new AmbientLight(0xffffff); // soft white light
+    // scene.add(light);
+
+    const directionalLight = new DirectionalLight(0xffffff, 0.7);
+    directionalLight.position.set(1, 2, 3)
+    scene.add(directionalLight);
+
+    scene.background = new Color(0xff0000);
 
     const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
     camera.position.z = 3
