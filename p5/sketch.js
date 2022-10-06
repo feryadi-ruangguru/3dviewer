@@ -8,18 +8,6 @@ function preload() {
 function setup() {
     createCanvas(100, 100, WEBGL);
     describe('Vertically rotating 3-d teapot with red, green and blue gradient.');
-
-    // set options to prevent default behaviors for swipe, pinch, etc
-    const options = {
-        preventDefault: true
-    };
-    // document.body registers gestures anywhere on the page
-    const hammer = new Hammer(document.body, options);
-    hammer.get('pinch').set({ enable: true });
-    hammer.get('rotate').set({ enable: true });
-    hammer.on("pinch", scaleRect);
-    hammer.on("rotate", rotateRect);
-
 }
 
 function draw() {
