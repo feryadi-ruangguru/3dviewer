@@ -16,49 +16,80 @@
         WebGLRenderer,
         PerspectiveCamera,
         AxesHelper,
-        PointLight,
         AmbientLight,
-        DirectionalLight,
-        Color,
-        Object3D
+        GridHelper,
+        MathUtils,
     } from './js/three.module.js'
     import {OBJLoader} from './js/objloader.module.js'
+    import {MtlLoader} from './js/mtlloader.module.js'
     import {OrbitControls} from "./js/orbitcontrols.module.js";
     import Stats from "./js/stats.module.js";
 
-    const url = 'https://core-ruangguru.s3.ap-southeast-1.amazonaws.com/3dobject/model.obj'
+    const objURL = 'https://core-ruangguru.s3.ap-southeast-1.amazonaws.com/3dobject/model.obj'
+    const mtlURL = 'https://core-ruangguru.s3.ap-southeast-1.amazonaws.com/3dobject/model.mtl'
 
     const scene = new Scene()
-    scene.add(new AxesHelper(5))
 
-    // const light = new AmbientLight(0xffffff); // soft white light
+    // const light = new PointLight(0xffffff, 2, 60);
+    // light.position.set(10, 10, 10);
+    // light.scale.set(1, 1, 1)
     // scene.add(light);
 
-    const directionalLight = new DirectionalLight(0xffffff, 0.7);
-    directionalLight.position.set(1, 2, 3)
-    scene.add(directionalLight);
+    // const light = new SpotLight()
+    const light = new AmbientLight()
+    scene.add(light)
 
-    scene.background = new Color(0xff0000);
+    const camera = new PerspectiveCamera(45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    )
+    camera.position.set(6, 8, 14);
 
-    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-    camera.position.z = 3
-
-    const renderer = new WebGLRenderer()
+    const renderer = new WebGLRenderer({
+        antiAlias: true
+    })
     renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0xFEFEFE)
     document.body.appendChild(renderer.domElement)
 
     const controls = new OrbitControls(camera, renderer.domElement)
-    controls.enableDamping = true
 
-    // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+    const gridHelper = new GridHelper(12, 12);
+    scene.add(gridHelper);
 
-    const objLoader = new OBJLoader()
-    objLoader.load(
-        url,
-        (object) => scene.add(object),
+    const axesHelper = new AxesHelper(10);
+    scene.add(axesHelper);
+
+    const mtlLoader = new MtlLoader()
+    mtlLoader.load(
+        mtlURL,
+        (materials) => {
+            materials.preload()
+            console.log(materials)
+            const objLoader = new OBJLoader()
+            objLoader.setMaterials(materials)
+            objLoader.load(
+                objURL,
+                (object) => {
+                    object.position.y = 2
+                    object.rotateX(MathUtils.degToRad(-90));
+                    object.rotateY(MathUtils.degToRad(0));
+                    object.rotateZ(MathUtils.degToRad(0));
+                    scene.add(object)
+                },
+                (xhr) => {
+                    console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+                },
+                (error) => {
+                    console.log('An error happened')
+                }
+            )
+        },
         (xhr) => console.log((xhr.loaded / xhr.total) * 100 + '% loaded'),
         (error) => console.log(error)
     )
+
 
     window.addEventListener('resize', onWindowResize, false)
 

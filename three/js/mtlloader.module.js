@@ -16,7 +16,7 @@ import {
  * Loads a Wavefront .mtl file specifying materials
  */
 
-class MltloaderModule extends Loader {
+class MtlLoader extends Loader {
 
     constructor( manager ) {
 
@@ -153,7 +153,7 @@ class MltloaderModule extends Loader {
 }
 
 /**
- * Create a new MltloaderModule.MaterialCreator
+ * Create a new MtlLoaderModule.MaterialCreator
  * @param baseUrl - Url relative to which textures are loaded
  * @param options - Set of options on how to construct the materials
  *                  side: Which side to apply the material
@@ -564,4 +564,4 @@ class MaterialCreator {
 
 }
 
-export { MltloaderModule };
+export { MtlLoader };
