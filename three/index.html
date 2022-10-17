@@ -7,25 +7,9 @@
         body {
             margin: 0;
         }
-
-        .input {
-            width: 100%;
-        }
-
-        .button {
-            width: 100%;
-        }
     </style>
 </head>
 <body>
-<label>obj</label>
-<input class="input" name="obj" id="obj"
-       value="https://core-ruangguru.s3.ap-southeast-1.amazonaws.com/3dobject/model.obj"/>
-<label>mtl</label>
-<input class="input" name="mtl" id="mtl"
-       value="https://core-ruangguru.s3.ap-southeast-1.amazonaws.com/3dobject/model.mtl"/>
-<button class="button" id="load">load</button>
-<p id="progress"></p>
 <script type="module">
     import {
         Scene,
@@ -42,13 +26,11 @@
     import Stats from "./js/stats.module.js";
 
     class App {
-
         constructor() {
             this.objURL = ""
             this.mtlURL = ""
 
             this.scene = this.prepareScene()
-
             this.camera = this.prepareCamera()
             this.renderer = this.prepareRenderer()
             this.stats = Stats()
@@ -56,11 +38,8 @@
 
             document.body.appendChild(this.renderer.domElement)
             // document.body.appendChild(this.stats.dom)
-
             window.addEventListener('resize', this.onWindowResize, false)
-
-            document.querySelector("#load").addEventListener("click", this.load)
-
+            this.load()
         }
 
         prepareScene = () => {
@@ -84,7 +63,7 @@
 
         load = () => {
             this.setURL()
-            this.resetScene()
+            // this.resetScene()
             this.loadObjectAndMtl()
         }
 
@@ -105,7 +84,6 @@
                         },
                         (xhr) => {
                             const progress = (xhr.loaded / xhr.total) * 100 + '% loaded'
-                            document.querySelector("#progress").innerHTML = progress
                             console.log(progress)
                         },
                         (error) => console.log('An error happened', error)
@@ -117,8 +95,11 @@
         }
 
         setURL = () => {
-            this.objURL = document.querySelector("#obj").value
-            this.mtlURL = document.querySelector("#mtl").value
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const params = Object.fromEntries(urlSearchParams.entries());
+
+            this.objURL = decodeURIComponent(params.objURL)
+            this.mtlURL = decodeURIComponent(params.mtlURL)
         }
 
         prepareCamera = () => {
