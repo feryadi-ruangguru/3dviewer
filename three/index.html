@@ -4,38 +4,134 @@
     <meta charset="utf-8">
     <title>My first three.js app</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0
         }
 
-        .bar {
+        .progress-background {
+            z-index: 10;
+            position: absolute;
+            background-color: black;
+            height: 100%;
             width: 100%;
-            border-width: 1px;
-            border-color: #04AA6D;
-            background-color: #b4afaf;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            flex-direction: column;
         }
 
-        .progress-bar {
+        .hidden {
+            visibility: hidden;
+        }
+
+        #adaptox-progress-bar-container {
+            width: 260px;
+            border: 2px solid white;
+            background-color: white;
+            border-radius: 16px;
+            overflow: clip;
+        }
+
+        .mb-32 {
+            margin-bottom: 32px;
+        }
+
+        #adaptox-progress-bar {
+            height: 20px;
             width: 0%;
-            height: 30px;
-            background-color: #04AA6D;
-            text-align: center; /* To center it horizontally (if you want) */
-            line-height: 30px; /* To center it vertically */
-            color: white;
+            border-radius: 10px;
+            background-image: linear-gradient(#035b8d, #025584);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #025584;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #025584;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .switch-position {
+            position: absolute;
+            right: 16px;
+            top: 16px;
         }
     </style>
 </head>
 <body>
-<div id="progress">
-    <div>load material</div>
-    <div class="bar">
-        <div id="mtl-progress-bar" class="progress-bar">0%</div>
+
+<div id="progress" class="progress-background">
+
+    <img src="assets/adaptox.png" class="mb-32" alt="adaptox">
+
+    <div id="adaptox-progress-bar-container">
+        <div id="adaptox-progress-bar"></div>
     </div>
-    <div>load object</div>
-    <div class="bar">
-        <div id="obj-progress-bar" class="progress-bar">0%</div>
-    </div>
+
 </div>
+
+<label class="switch switch-position">
+    <input id="toggle-dark-light" type="checkbox">
+    <span class="slider round"></span>
+</label>
+
 <script type="module">
     import {
         WebGLRenderer,
@@ -44,69 +140,91 @@
         AxesHelper,
         AmbientLight,
         PointLight,
-        DirectionalLight,
-        GridHelper,
-        sRGBEncoding,
         DefaultLoadingManager,
-        ACESFilmicToneMapping,
         MathUtils,
-    } from './js/three.module.js'
-    import {OBJLoader} from './js/objloader.module.js'
-    import {MtlLoader} from './js/mtlloader.module.js'
-    import {OrbitControls} from "./js/orbitcontrols.module.js"
-    import Stats from "./js/stats.module.js"
+        TextureLoader,
+    } from './libs/threejs/three.module.js'
+    import {OBJLoader} from './libs/threejs/objloader.module.js'
+    import {MtlLoader} from './libs/threejs/mtlloader.module.js'
+    import {OrbitControls} from "./libs/threejs/orbitcontrols.module.js"
+    import Stats from "./libs/threejs/stats.module.js"
 
-    const mtlProgressBar = document.querySelector("#mtl-progress-bar")
-    const objProgressBar = document.querySelector("#obj-progress-bar")
+    const progress = document.querySelector("#progress")
+    const adaptoxProgressBar = document.querySelector("#adaptox-progress-bar")
+    const toggleDarkLight = document.querySelector("#toggle-dark-light")
 
-    /**
-     *
-     * @param {HTMLElement} element
-     * @param {number} value
-     */
-    function setProgress(element, value) {
-        element.style.width = value + '%'
-        element.innerHTML = value.toFixed(0) + '%'
+    function dismissProgress() {
+        setTimeout(() => progress.classList.add('hidden'), 500)
     }
 
     class App {
+
         constructor() {
+            this.darkBackground = null
+            this.lightBackground = null
             this.objURL = ""
             this.mtlURL = ""
+            this.onLoad = null
+            this.onProgress = null
+            this.isDark = false
+            this.object = null
 
-            this.scene = this.prepareScene()
+            this.loadImageBackground()
+
             this.camera = this.prepareCamera()
+            this.scene = this.prepareScene()
+
             this.renderer = this.prepareRenderer()
             this.stats = Stats()
             this.controls = new OrbitControls(this.camera, this.renderer.domElement)
 
             document.body.appendChild(this.renderer.domElement)
-            // document.body.appendChild(this.stats.dom)
+            document.body.appendChild(this.stats.dom)
             window.addEventListener('resize', this.onWindowResize, false)
             this.load()
+
+        }
+
+        loadImageBackground = () => {
+            const backgroundLoader = new TextureLoader()
+            backgroundLoader.load("./assets/dark-background.jpg", (texture) => {
+                this.darkBackground = texture
+            })
+            backgroundLoader.load("./assets/light-background.jpg", (texture) => {
+                this.lightBackground = texture
+                this.scene.background = texture
+            })
+        }
+
+        /**
+         *
+         * @param {() => void} onLoad
+         */
+        doOnLoad = (onLoad) => {
+            this.onLoad = onLoad
+        }
+
+        /**
+         *
+         * @param {(progress: number) => void} onProgress
+         */
+        doOnProgress = (onProgress) => {
+            this.onProgress = onProgress
+        }
+
+        toggleBackground = () => {
+            this.scene.background = this.isDark ? this.lightBackground : this.darkBackground
+            this.isDark = !this.isDark
+            console.log("app.toggleBackground")
         }
 
         prepareScene = () => {
             const scene = new Scene()
-
             scene.add(new AmbientLight())
-
             const pointLight = new PointLight(0xffffff, 0.5, 1000)
             pointLight.position.set(50, 50, 50)
             scene.add(pointLight)
-
-            // const directionalLight = new DirectionalLight(0xffffff, 0.5)
-            // directionalLight.position.set(0, 1, 0)
-            // directionalLight.castShadow = true
-            // scene.add(directionalLight)
-
-            scene.add(new GridHelper(10, 10))
-            scene.add(new AxesHelper(30))
             return scene
-        }
-
-        resetScene = () => {
-            this.scene = this.prepareScene()
         }
 
         onWindowResize = () => {
@@ -118,12 +236,12 @@
 
         load = () => {
             this.setURL()
-            // this.resetScene()
             this.loadObjectAndMtl()
         }
 
         loadObjectAndMtl = () => {
             const mtlLoader = new MtlLoader(DefaultLoadingManager)
+
             mtlLoader.load(this.mtlURL,
                 (materials) => {
                     materials.preload()
@@ -131,27 +249,27 @@
                     objLoader.setMaterials(materials)
                     objLoader.load(this.objURL,
                         (object) => {
-                            object.position.y = 2
+                            // object.position.y = 2
                             // object.rotateX(MathUtils.degToRad(-90))
-                            object.rotateY(MathUtils.degToRad(0))
-                            object.rotateZ(MathUtils.degToRad(0))
+                            // object.rotateY(MathUtils.degToRad(0))
+                            // object.rotateZ(MathUtils.degToRad(0))
 
                             object.castShadow = true;
                             object.receiveShadow = true;
-
+                            // object.position.y = 3
                             this.scene.add(object)
+                            this.onLoad()
                         },
                         (xhr) => {
                             const progress = (xhr.loaded / xhr.total) * 100
-                            setProgress(objProgressBar, progress)
                             console.log('object ' + progress + '% loaded')
+                            this.onProgress(progress)
                         },
                         (error) => console.log('An error happened', error)
                     )
                 },
                 (xhr) => {
                     const progress = (xhr.loaded / xhr.total) * 100
-                    setProgress(mtlProgressBar, progress)
                     console.log('material ' + progress + '% loaded')
                 },
                 (error) => console.log(error)
@@ -182,8 +300,8 @@
             })
             renderer.setSize(window.innerWidth, window.innerHeight)
             renderer.setClearColor(0xFEFEFE)
-            // renderer.shadowMapEnabled = true;
-            // renderer.shadowMapSoft = true;
+            renderer.shadowMapEnabled = true;
+            renderer.shadowMapSoft = true;
             return renderer
         }
 
@@ -200,12 +318,14 @@
     }
 
     const app = new App()
+    app.doOnProgress(progress => adaptoxProgressBar.style.width = progress + '%')
+    app.doOnLoad(() => dismissProgress())
 
-    function animate() {
-        app.animate()
-    }
+    toggleDarkLight.addEventListener('click', () => {
+        app.toggleBackground()
+    })
 
-    animate()
+    app.animate()
 
 </script>
 </body>
