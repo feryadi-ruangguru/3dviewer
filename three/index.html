@@ -5,25 +5,69 @@
     <title>My first three.js app</title>
     <style>
         body {
-            margin: 0;
+            margin: 0
+        }
+
+        .bar {
+            width: 100%;
+            border-width: 1px;
+            border-color: #04AA6D;
+            background-color: #b4afaf;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 30px;
+            background-color: #04AA6D;
+            text-align: center; /* To center it horizontally (if you want) */
+            line-height: 30px; /* To center it vertically */
+            color: white;
         }
     </style>
 </head>
 <body>
+<div id="progress">
+    <div>load material</div>
+    <div class="bar">
+        <div id="mtl-progress-bar" class="progress-bar">0%</div>
+    </div>
+    <div>load object</div>
+    <div class="bar">
+        <div id="obj-progress-bar" class="progress-bar">0%</div>
+    </div>
+</div>
 <script type="module">
     import {
-        Scene,
         WebGLRenderer,
+        Scene,
         PerspectiveCamera,
         AxesHelper,
         AmbientLight,
+        PointLight,
+        DirectionalLight,
         GridHelper,
+        sRGBEncoding,
+        DefaultLoadingManager,
+        ACESFilmicToneMapping,
         MathUtils,
     } from './js/three.module.js'
     import {OBJLoader} from './js/objloader.module.js'
     import {MtlLoader} from './js/mtlloader.module.js'
-    import {OrbitControls} from "./js/orbitcontrols.module.js";
-    import Stats from "./js/stats.module.js";
+    import {OrbitControls} from "./js/orbitcontrols.module.js"
+    import Stats from "./js/stats.module.js"
+
+    const mtlProgressBar = document.querySelector("#mtl-progress-bar")
+    const objProgressBar = document.querySelector("#obj-progress-bar")
+
+    /**
+     *
+     * @param {HTMLElement} element
+     * @param {number} value
+     */
+    function setProgress(element, value) {
+        element.style.width = value + '%'
+        element.innerHTML = value.toFixed(0) + '%'
+    }
 
     class App {
         constructor() {
@@ -43,10 +87,21 @@
         }
 
         prepareScene = () => {
-            const scene = new Scene();
+            const scene = new Scene()
+
             scene.add(new AmbientLight())
-            scene.add(new GridHelper(12, 12));
-            scene.add(new AxesHelper(10))
+
+            const pointLight = new PointLight(0xffffff, 0.5, 1000)
+            pointLight.position.set(50, 50, 50)
+            scene.add(pointLight)
+
+            // const directionalLight = new DirectionalLight(0xffffff, 0.5)
+            // directionalLight.position.set(0, 1, 0)
+            // directionalLight.castShadow = true
+            // scene.add(directionalLight)
+
+            scene.add(new GridHelper(10, 10))
+            scene.add(new AxesHelper(30))
             return scene
         }
 
@@ -68,7 +123,7 @@
         }
 
         loadObjectAndMtl = () => {
-            const mtlLoader = new MtlLoader()
+            const mtlLoader = new MtlLoader(DefaultLoadingManager)
             mtlLoader.load(this.mtlURL,
                 (materials) => {
                     materials.preload()
@@ -77,26 +132,35 @@
                     objLoader.load(this.objURL,
                         (object) => {
                             object.position.y = 2
-                            object.rotateX(MathUtils.degToRad(-90));
-                            object.rotateY(MathUtils.degToRad(0));
-                            object.rotateZ(MathUtils.degToRad(0));
+                            // object.rotateX(MathUtils.degToRad(-90))
+                            object.rotateY(MathUtils.degToRad(0))
+                            object.rotateZ(MathUtils.degToRad(0))
+
+                            object.castShadow = true;
+                            object.receiveShadow = true;
+
                             this.scene.add(object)
                         },
                         (xhr) => {
-                            const progress = (xhr.loaded / xhr.total) * 100 + '% loaded'
-                            console.log(progress)
+                            const progress = (xhr.loaded / xhr.total) * 100
+                            setProgress(objProgressBar, progress)
+                            console.log('object ' + progress + '% loaded')
                         },
                         (error) => console.log('An error happened', error)
                     )
                 },
-                (xhr) => console.log((xhr.loaded / xhr.total) * 100 + '% loaded'),
+                (xhr) => {
+                    const progress = (xhr.loaded / xhr.total) * 100
+                    setProgress(mtlProgressBar, progress)
+                    console.log('material ' + progress + '% loaded')
+                },
                 (error) => console.log(error)
             )
         }
 
         setURL = () => {
-            const urlSearchParams = new URLSearchParams(window.location.search);
-            const params = Object.fromEntries(urlSearchParams.entries());
+            const urlSearchParams = new URLSearchParams(window.location.search)
+            const params = Object.fromEntries(urlSearchParams.entries())
 
             this.objURL = decodeURIComponent(params.objURL)
             this.mtlURL = decodeURIComponent(params.mtlURL)
@@ -108,16 +172,18 @@
                 0.1,
                 1000
             )
-            camera.position.set(6, 8, 14);
+            camera.position.set(6, 8, 14)
             return camera
         }
 
         prepareRenderer = () => {
             const renderer = new WebGLRenderer({
-                antiAlias: true
+                antiAlias: true,
             })
             renderer.setSize(window.innerWidth, window.innerHeight)
             renderer.setClearColor(0xFEFEFE)
+            // renderer.shadowMapEnabled = true;
+            // renderer.shadowMapSoft = true;
             return renderer
         }
 
