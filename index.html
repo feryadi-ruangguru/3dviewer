@@ -238,12 +238,10 @@
 
         prepareCoordSceneView = () => {
             const coordSceneRatio = 0.1;
-            const coordSceneSize = 1 - coordSceneRatio; // 1 - 0.1 = 0.9
-            // const coordSceneSize = 0.1
 
             return {
-                left: this.sceneView.left + coordSceneSize,
-                bottom: this.sceneView.bottom + coordSceneSize,
+                left: this.sceneView.left,
+                bottom: this.sceneView.bottom,
                 width: this.sceneView.width * coordSceneRatio,
                 height: this.sceneView.height * coordSceneRatio
             };
