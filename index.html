@@ -12,14 +12,6 @@
         body {
             font-family: "Inter", sans-serif;
             margin: 0;
-
-            /* Full height */
-            height: 100%;
-
-            /* Center and scale the image nicely */
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
         }
 
         .progress-background {
@@ -33,10 +25,6 @@
             justify-content: center;
             padding: 16px;
             flex-direction: column;
-        }
-
-        .hidden {
-            visibility: hidden;
         }
 
         #adaptox-progress-bar-container {
@@ -148,9 +136,31 @@
         .dark-label {
             color: #cccccc;
         }
+
+        .main-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .main-background-image {
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
     </style>
 </head>
 <body>
+
+<div id="main-background" class="main-background">
+    <div id="dark-main-background" class="main-background main-background-image"></div>
+    <div id="light-main-background" class="main-background main-background-image"></div>
+</div>
 
 <div id="progress" class="progress-background">
     <img src="assets/adaptox.png" class="mb-32" alt="adaptox">
@@ -168,7 +178,7 @@
     <label id="dark-switch-label" class="switch-label light-label">dark</label>
 </div>
 
-<canvas id="canvas" style="display: block;"/>
+<canvas id="canvas" style="display: block;"></canvas>
 
 <script type="module">
     import {
@@ -178,9 +188,7 @@
         AxesHelper,
         AmbientLight,
         PointLight,
-        Color,
         DefaultLoadingManager,
-        MathUtils,
         OrthographicCamera,
         TextureLoader,
     } from './libs/threejs/three.module.js'
@@ -335,7 +343,11 @@
                 (error) => null
             )
 
-            this.body.style.backgroundImage = `url("${this.lightBackgroundURL}")`
+            document.querySelector('#dark-main-background').classList.add('hidden')
+            document.querySelector('#dark-main-background').style.backgroundImage = `url("${this.darkBackgroundURL}")`
+
+            document.querySelector('#light-main-background')
+            document.querySelector('#light-main-background').style.backgroundImage = `url("${this.lightBackgroundURL}")`
         }
 
         doOnLoad = (onLoad) => {
@@ -351,9 +363,8 @@
             //     ? this.darkBackground
             //     : this.lightBackground
 
-            this.body.style.backgroundImage = this.body.style.backgroundImage === `url("${this.lightBackgroundURL}")`
-                ? `url("${this.darkBackgroundURL}")`
-                : `url("${this.lightBackgroundURL}")`
+            document.querySelector('#dark-main-background').classList.toggle('hidden')
+            document.querySelector('#light-main-background').classList.toggle('hidden')
         }
 
         load = () => {
