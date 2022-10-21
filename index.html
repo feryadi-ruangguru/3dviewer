@@ -112,7 +112,8 @@
 
         .switch-position {
             position: absolute;
-            right: 16px;
+            /*right: 16px;*/
+            left: 16px;
             top: 16px;
         }
 
@@ -159,6 +160,8 @@
     <label id="dark-switch-label" class="switch-label light-label">dark</label>
 </div>
 
+<canvas id="canvas" style="display: block;"/>
+
 <script type="module">
     import {
         WebGLRenderer,
@@ -167,9 +170,10 @@
         AxesHelper,
         AmbientLight,
         PointLight,
-        Mesh,
+        Color,
         DefaultLoadingManager,
         MathUtils,
+        OrthographicCamera,
         TextureLoader,
     } from './libs/threejs/three.module.js'
     import {OBJLoader} from './libs/threejs/objloader.module.js'
@@ -181,6 +185,14 @@
     class App {
 
         constructor() {
+            this.progress = document.querySelector("#progress")
+            this.adaptoxProgressBar = document.querySelector("#adaptox-progress-bar")
+            this.toggleDarkLight = document.querySelector("#toggle-dark-light")
+            this.ligthSwitchLabel = document.querySelector("#light-switch-label")
+            this.darkSwitchLabel = document.querySelector("#dark-switch-label")
+            this.canvas = document.querySelector("#canvas")
+
+
             this.objURL = ""
             this.mtlURL = ""
             this.gltfURL = ""
@@ -196,18 +208,50 @@
             this.camera = this.prepareCamera()
             this.scene = this.prepareScene()
 
+            this.coordCamera = this.prepareCoordCamera()
+            this.coordScene = this.prepareCoordScene()
+
+            this.sceneView = this.prepareSceneView()
+
+            this.coordSceneView = this.prepareCoordSceneView()
+
             this.renderer = this.prepareRenderer()
-            this.stats = Stats()
+
             this.controls = new OrbitControls(this.camera, this.renderer.domElement)
 
             document.body.appendChild(this.renderer.domElement)
+
+            this.stats = Stats()
             // document.body.appendChild(this.stats.dom)
+
             window.addEventListener('resize', this.onWindowResize, false)
+        }
+
+        prepareSceneView = () => {
+            return {
+                left: 0,
+                bottom: 0,
+                width: 1.0,
+                height: 1.0
+            };
+        }
+
+        prepareCoordSceneView = () => {
+            const coordSceneRatio = 0.1;
+            const coordSceneSize = 1 - coordSceneRatio; // 1 - 0.1 = 0.9
+            // const coordSceneSize = 0.1
+
+            return {
+                left: this.sceneView.left + coordSceneSize,
+                bottom: this.sceneView.bottom + coordSceneSize,
+                width: this.sceneView.width * coordSceneRatio,
+                height: this.sceneView.height * coordSceneRatio
+            };
+
         }
 
         loadImageBackground = () => {
             const backgroundLoader = new TextureLoader()
-
             backgroundLoader.load(this.darkBackgroundURL,
                 (texture) => {
                     this.darkBackground = texture
@@ -219,54 +263,32 @@
                     console.log('load dark background on error', error)
                 }
             )
-
             backgroundLoader.load(this.lightBackgroundURL,
                 (texture) => {
                     this.lightBackground = texture
                     this.scene.background = texture
                 },
                 (xhr) => {
-
                 },
                 (error) => {
-
                 }
             )
         }
 
-        /**
-         * doOnload register function to run when onLoad .obj and .mtl
-         * @param {() => void} onLoad
-         */
         doOnLoad = (onLoad) => {
             this.onLoad = onLoad
         }
 
-        /**
-         * doOnProgress register function to run when onProgress load .obj and .mtl
-         * @param {(progress: number) => void} onProgress
-         */
         doOnProgress = (onProgress) => {
             this.onProgress = onProgress
         }
 
-        /**
-         * toggle scene background dark to light back and forth
-         */
         toggleBackground = () => {
             this.scene.background = this.scene.background === this.lightBackground
                 ? this.darkBackground
                 : this.lightBackground
         }
 
-        prepareScene = () => {
-            const scene = new Scene()
-            scene.add(new AmbientLight())
-            const pointLight = new PointLight(0xffffff, 0.5, 1000)
-            pointLight.position.set(50, 50, 50)
-            scene.add(pointLight)
-            return scene
-        }
 
         onWindowResize = () => {
             this.camera.aspect = window.innerWidth / window.innerHeight
@@ -274,7 +296,6 @@
             this.renderer.setSize(window.innerWidth, window.innerHeight)
             this.render()
         }
-
         load = () => {
             this.setURL()
             this.loadImageBackground()
@@ -384,16 +405,71 @@
         }
 
         prepareRenderer = () => {
-            const renderer = new WebGLRenderer({antiAlias: true})
+            const renderer = new WebGLRenderer({canvas: this.canvas, antiAlias: true, alpha: true})
             renderer.setSize(window.innerWidth, window.innerHeight)
             renderer.setClearColor(0xFEFEFE)
             renderer.shadowMapEnabled = true;
             renderer.shadowMapSoft = true;
+            renderer.shadowMap.enabled = true
             return renderer
         }
 
+        prepareScene = () => {
+            const scene = new Scene()
+            scene.add(new AmbientLight())
+            const pointLight = new PointLight(0xffffff, 0.5, 1000)
+            pointLight.position.set(50, 50, 50)
+            scene.add(pointLight)
+            return scene
+        }
+
+        prepareCoordCamera = () => {
+            const coordCamera = new OrthographicCamera(
+                10 / -2,
+                10 / 2,
+                10 / 2,
+                10 / -2,
+                0.011,
+                1000
+            );
+
+            coordCamera.position.copy(this.camera.position);
+
+            return coordCamera
+        }
+
+        prepareCoordScene = () => {
+            const coordScene = new Scene()
+            const axesHelper = new AxesHelper(2);
+            coordScene.add(axesHelper);
+
+            // coordScene.background = new Color("lightblue");
+
+            return coordScene
+        }
+
         render = () => {
-            this.renderer.render(this.scene, this.camera)
+
+            this.renderScene(this.scene, this.camera, this.sceneView)
+
+            this.coordCamera.position.copy(this.camera.position);
+            this.coordCamera.position.sub(this.controls.target);
+            this.coordCamera.lookAt(this.coordScene.position);
+
+            this.coordScene.background = new Color(0xFFFFFF)
+
+            this.renderScene(this.coordScene, this.coordCamera, this.coordSceneView)
+        }
+
+        renderScene = (scene, camera, sceneView) => {
+            const left = Math.floor(this.canvas.width * sceneView.left);
+            const bottom = Math.floor(this.canvas.height * sceneView.bottom);
+            const width = Math.floor(this.canvas.width * sceneView.width);
+            const height = Math.floor(this.canvas.height * sceneView.height);
+            this.renderer.setViewport(left, bottom, width, height);
+            this.renderer.setScissor(left, bottom, width, height);
+            this.renderer.setScissorTest(true);
+            this.renderer.render(scene, camera)
         }
 
         animate = () => {
@@ -402,16 +478,7 @@
             this.render()
             this.stats.update()
         }
-    }
 
-    class Dom {
-        constructor() {
-            this.progress = document.querySelector("#progress")
-            this.adaptoxProgressBar = document.querySelector("#adaptox-progress-bar")
-            this.toggleDarkLight = document.querySelector("#toggle-dark-light")
-            this.ligthSwitchLabel = document.querySelector("#light-switch-label")
-            this.darkSwitchLabel = document.querySelector("#dark-switch-label")
-        }
 
         dismissProgress = () => {
             setTimeout(() => this.progress.classList.add('hidden'), 500)
@@ -441,14 +508,13 @@
         }
     }
 
-    const dom = new Dom()
     const app = new App()
 
-    app.doOnProgress(dom.applyProgress)
-    app.doOnLoad(() => dom.dismissProgress())
+    app.doOnProgress(() => app.applyProgress())
+    app.doOnLoad(() => app.dismissProgress())
     app.load()
     app.animate()
-    dom.onClickToggleDarkLight(() => app.toggleBackground())
+    app.onClickToggleDarkLight(() => app.toggleBackground())
 
 </script>
 </body>
