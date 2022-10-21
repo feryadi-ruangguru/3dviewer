@@ -511,7 +511,7 @@
 
     const app = new App()
 
-    app.doOnProgress(() => app.applyProgress())
+    app.doOnProgress((progress) => app.applyProgress(progress))
     app.doOnLoad(() => app.dismissProgress())
     app.load()
     app.animate()
