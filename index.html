@@ -1,174 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/png" href="https://cdn-web.ruangguru.com/rubel-web/public/assets/icons/favicon.id.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>3D Viewer</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Inter", sans-serif;
-            margin: 0;
-        }
-
-        .progress-background {
-            z-index: 10;
-            position: absolute;
-            background-color: black;
-            height: 100%;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            flex-direction: column;
-        }
-
-        #adaptox-progress-bar-container {
-            width: 260px;
-            border: 2px solid white;
-            background-color: white;
-            border-radius: 16px;
-            overflow: clip;
-        }
-
-        .mb-32 {
-            margin-bottom: 32px;
-        }
-
-        #adaptox-progress-bar {
-            height: 20px;
-            width: 0%;
-            border-radius: 10px;
-            background-image: linear-gradient(#035b8d, #025584);
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            -webkit-transition: .4s;
-            transition: .4s;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-        }
-
-        input:checked + .slider {
-            background-color: #025584;
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #025584;
-        }
-
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-
-        /* Rounded sliders */
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
-
-        .switch-position {
-            position: absolute;
-            right: 16px;
-            /*left: 16px;*/
-            top: 16px;
-        }
-
-        .flex {
-            display: flex;
-        }
-
-        .align-center {
-            align-items: center;
-        }
-
-        .justify-center {
-            justify-content: center;
-        }
-
-        .switch-label {
-            padding: 8px;
-        }
-
-        .light-label {
-            color: #025584;
-        }
-
-        .dark-label {
-            color: #cccccc;
-        }
-
-        .main-background {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .main-background-image {
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-
-        .hidden {
-            visibility: hidden;
-        }
-    </style>
+  <script type="module" crossorigin src="./assets/index.3c3347cc.js"></script>
+  <link rel="stylesheet" href="./assets/index.f569865f.css">
 </head>
 <body>
 
+<!--main background-->
 <div id="main-background" class="main-background">
     <div id="dark-main-background" class="main-background main-background-image"></div>
     <div id="light-main-background" class="main-background main-background-image"></div>
 </div>
 
-<div id="progress" class="progress-background">
-    <img src="assets/adaptox.png" class="mb-32" alt="adaptox">
-    <div id="adaptox-progress-bar-container">
-        <div id="adaptox-progress-bar"></div>
+<!--progress bar-->
+<div id="progress">
+    <img src="./adapto-x.png" id="adapto-x-image" alt="AdaptoX">
+    <div id="adapto-x-progress-bar-container">
+        <div id="adapto-x-progress-bar"></div>
     </div>
 </div>
 
+<!--guide button-->
+<div class="guide-button-position">
+    <button id="guide-button" class="guide-button">
+        <svg class="icon-guide" width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M2.22222 10C2.22222 5.70445 5.70445 2.22222 10 2.22222C14.2955 2.22222 17.7778 5.70445 17.7778 10C17.7778 14.2955 14.2955 17.7778 10 17.7778C5.70445 17.7778 2.22222 14.2955 2.22222 10ZM10 0C4.47715 0 0 4.47715 0 10C0 15.5228 4.47715 20 10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0ZM9.81481 7.40741C10.633 7.40741 11.2963 6.74413 11.2963 5.92593C11.2963 5.10773 10.633 4.44444 9.81481 4.44444C8.99662 4.44444 8.33333 5.10773 8.33333 5.92593C8.33333 6.74413 8.99662 7.40741 9.81481 7.40741ZM8.14815 9.62963C8.14815 9.01598 8.64561 8.51852 9.25926 8.51852H10C10.6136 8.51852 11.1111 9.01598 11.1111 9.62963V13.3966C11.5427 13.5491 11.8519 13.9607 11.8519 14.4444C11.8519 15.0581 11.3544 15.5556 10.7407 15.5556H10C9.38635 15.5556 8.88889 15.0581 8.88889 14.4444V10.6775C8.45734 10.525 8.14815 10.1134 8.14815 9.62963Z"/>
+        </svg>
+    </button>
+</div>
+
+<!--toggle theme-->
 <div class="switch-position flex align-center justify-center">
     <label id="light-switch-label" class="switch-label light-label">light</label>
     <label class="switch">
@@ -178,356 +45,33 @@
     <label id="dark-switch-label" class="switch-label light-label">dark</label>
 </div>
 
-<canvas id="canvas" style="display: block;"></canvas>
+<!--guide dialog-->
+<div id="guide-dialog" class="guide-dialog">
+    <div class="guide-dialog-sheet-container">
+        <div class="guide-dialog-sheet">
+            <div class="guide-dialog-sheet-header">
+                <p class="title">Petunjuk</p>
+                <button id="guide-dialog-close-button" class="guide-dialog-close-button">
+                    <svg class="icon-close" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M13.6653 1.95098C14.1116 1.50467 14.1116 0.781049 13.6653 0.334735C13.219 -0.111578 12.4953 -0.111578 12.049 0.334735L7 5.38376L1.95098 0.334735C1.50467 -0.111578 0.781049 -0.111578 0.334735 0.334735C-0.111578 0.781049 -0.111578 1.50467 0.334735 1.95098L5.38376 7L0.334735 12.049C-0.111578 12.4953 -0.111578 13.219 0.334735 13.6653C0.781049 14.1116 1.50467 14.1116 1.95098 13.6653L7 8.61624L12.049 13.6653C12.4953 14.1116 13.219 14.1116 13.6653 13.6653C14.1116 13.219 14.1116 12.4953 13.6653 12.049L8.61624 7L13.6653 1.95098Z"
+                        />
+                    </svg>
+                </button>
+            </div>
+            <div class="guide-dialog-sheet-content">
+                <p class="content">
+                    Perhatikan struktur 3D berikut ini.
+                    Kamu dapat memperbesar, memperkecil, dan memutar struktur 3D untuk melihat dengan lebih jelas.
+                    Setelah cukup, tekan tombol keluar di pojok kanan atas untuk keluar.
+                </p>
+            </div>
+            <button id="guide-dialog-ok-button" class="guide-dialog-ok-button">OK</button>
+        </div>
+    </div>
+</div>
 
-<script type="module">
-    import {
-        WebGLRenderer,
-        Scene,
-        PerspectiveCamera,
-        AxesHelper,
-        AmbientLight,
-        PointLight,
-        DefaultLoadingManager,
-        OrthographicCamera,
-        TextureLoader,
-    } from './libs/threejs/three.module.js'
-    import {OBJLoader} from './libs/threejs/objloader.module.js'
-    import {MtlLoader} from './libs/threejs/mtlloader.module.js'
-    import {OrbitControls} from "./libs/threejs/orbitcontrols.module.js"
-    import {GLTFLoader} from './libs/threejs/gltfloader.module.js'
-    import Stats from "./libs/threejs/stats.module.js"
 
-    class App {
-
-        constructor() {
-            this.progress = document.querySelector("#progress")
-            this.adaptoxProgressBar = document.querySelector("#adaptox-progress-bar")
-            this.toggleDarkLight = document.querySelector("#toggle-dark-light")
-            this.ligthSwitchLabel = document.querySelector("#light-switch-label")
-            this.darkSwitchLabel = document.querySelector("#dark-switch-label")
-            this.canvas = document.querySelector("#canvas")
-            this.body = document.querySelector('body')
-
-            this.objURL = ""
-            this.mtlURL = ""
-            this.gltfURL = ""
-            this.darkBackgroundURL = ""
-            this.lightBackgroundURL = ""
-
-            this.darkBackground = null
-            this.lightBackground = null
-
-            this.onLoad = null
-            this.onProgress = null
-
-            this.camera = this.prepareCamera()
-            this.scene = this.prepareScene()
-
-            this.coordCamera = this.prepareCoordCamera()
-            this.coordScene = this.prepareCoordScene()
-
-            this.sceneView = this.prepareSceneView()
-            this.coordSceneView = this.prepareCoordSceneView()
-
-            this.renderer = this.prepareRenderer()
-
-            this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-
-            document.body.appendChild(this.renderer.domElement)
-
-            this.stats = Stats()
-            // document.body.appendChild(this.stats.dom)
-
-            window.addEventListener('resize', this.onWindowResize, false)
-        }
-
-        selectLoad = () => {
-            if (this.objURL !== '' && this.mtlURL !== '') {
-                this.loadObjAndMtl()
-                return
-            }
-
-            if (this.gltfURL !== '') {
-                this.loadGLTF()
-            }
-        }
-
-        loadGLTF = () => {
-            const gltfLoader = new GLTFLoader(DefaultLoadingManager)
-            gltfLoader.load(this.gltfURL, this.gltfOnLoad, this.gltfOnProgress, this.gltfOnError)
-        }
-
-        gltfOnLoad = (gltf) => {
-            gltf.scene.traverse(child => {
-                if (child.isMesh) {
-                    const mesh = child
-                    mesh.receiveShadow = true
-                    mesh.castShadow = true
-                }
-
-                if (child.isLight) {
-                    const light = child
-                    light.castShadow = true
-                    light.shadow.bias = -0.003
-                    light.shadow.mapSize.width = 2048
-                    light.shadow.mapSize.height = 2048
-                }
-
-                this.scene.add(gltf.scene)
-                this.onLoad()
-            })
-        }
-
-        gltfOnProgress = (xhr) => {
-            const progress = (xhr.loaded / xhr.total) * 100
-            console.log('gltf ' + progress + '% loaded')
-            this.onProgress(progress)
-        }
-
-        gltfOnError = (error) => {
-            console.log('An error happened', error)
-        }
-
-        loadObjAndMtl = () => {
-            const mtlLoader = new MtlLoader(DefaultLoadingManager)
-            mtlLoader.load(this.mtlURL, this.mtlOnLoad, this.mtlOnProgress, this.mtlOnError)
-        }
-
-        mtlOnLoad = (materials) => {
-            materials.preload()
-            const objLoader = new OBJLoader()
-            objLoader.setMaterials(materials)
-            objLoader.load(this.objURL, this.objOnLoad, this.objOnProgress, this.objOnError)
-        }
-
-        mtlOnProgress = (xhr) => {
-            const progress = (xhr.loaded / xhr.total) * 100
-            console.log('material ' + progress + '% loaded')
-        }
-
-        mtlOnError = (error) => {
-            console.log('An error happened', error)
-        }
-
-        objOnLoad = (object) => {
-            this.scene.add(object)
-            this.onLoad()
-        }
-
-        objOnProgress = (xhr) => {
-            const progress = (xhr.loaded / xhr.total) * 100
-            console.log('object ' + progress + '% loaded')
-            this.onProgress(progress)
-        }
-
-        objOnError = (error) => {
-            console.log('An error happened', error)
-        }
-
-        loadImageBackground = () => {
-            const backgroundLoader = new TextureLoader()
-            backgroundLoader.load(this.darkBackgroundURL,
-                (texture) => {
-                    this.darkBackground = texture
-                },
-                (xhr) => null,
-                (error) => null
-            )
-            backgroundLoader.load(this.lightBackgroundURL,
-                (texture) => {
-                    this.lightBackground = texture
-                    // this.scene.background = texture
-                },
-                (xhr) => null,
-                (error) => null
-            )
-
-            document.querySelector('#dark-main-background').classList.add('hidden')
-            document.querySelector('#dark-main-background').style.backgroundImage = `url("${this.darkBackgroundURL}")`
-
-            document.querySelector('#light-main-background')
-            document.querySelector('#light-main-background').style.backgroundImage = `url("${this.lightBackgroundURL}")`
-        }
-
-        doOnLoad = (onLoad) => {
-            this.onLoad = onLoad
-        }
-
-        doOnProgress = (onProgress) => {
-            this.onProgress = onProgress
-        }
-
-        toggleBackground = () => {
-            // this.scene.background = this.scene.background === this.lightBackground
-            //     ? this.darkBackground
-            //     : this.lightBackground
-
-            document.querySelector('#dark-main-background').classList.toggle('hidden')
-            document.querySelector('#light-main-background').classList.toggle('hidden')
-        }
-
-        load = () => {
-            this.setURL()
-            this.loadImageBackground()
-            this.selectLoad()
-        }
-
-        setURL = () => {
-            const urlSearchParams = new URLSearchParams(window.location.search)
-            const params = Object.fromEntries(urlSearchParams.entries())
-
-            this.objURL = decodeURIComponent(params.objURL || '')
-            this.mtlURL = decodeURIComponent(params.mtlURL || '')
-            this.gltfURL = decodeURIComponent(params.gltfURL || '')
-            this.darkBackgroundURL = decodeURIComponent(params.darkBackgroundURL || '')
-            this.lightBackgroundURL = decodeURIComponent(params.lightBackgroundURL || '')
-        }
-
-        prepareSceneView = () => {
-            return {
-                left: 0,
-                bottom: 0,
-                width: 1.0,
-                height: 1.0
-            };
-        }
-
-        prepareCoordSceneView = () => {
-            const coordSceneRatio = 0.1;
-
-            return {
-                left: this.sceneView.left,
-                bottom: this.sceneView.bottom,
-                width: this.sceneView.width * coordSceneRatio,
-                height: this.sceneView.height * coordSceneRatio
-            };
-
-        }
-
-        prepareCamera = () => {
-            const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
-            camera.position.set(6, 8, 14)
-            return camera
-        }
-
-        prepareRenderer = () => {
-            const renderer = new WebGLRenderer({canvas: this.canvas, antiAlias: true, alpha: true})
-            renderer.setSize(window.innerWidth, window.innerHeight)
-            renderer.shadowMapEnabled = true;
-            renderer.shadowMapSoft = true;
-            renderer.shadowMap.enabled = true
-            return renderer
-        }
-
-        prepareScene = () => {
-            const scene = new Scene()
-            scene.add(new AmbientLight())
-            const pointLight = new PointLight(0xffffff, 0.5, 1000)
-            pointLight.position.set(50, 50, 50)
-            scene.add(pointLight)
-            return scene
-        }
-
-        prepareCoordCamera = () => {
-            const coordCamera = new OrthographicCamera(
-                10 / -2,
-                10 / 2,
-                10 / 2,
-                10 / -2,
-                0.011,
-                1000
-            );
-
-            coordCamera.position.copy(this.camera.position);
-
-            return coordCamera
-        }
-
-        prepareCoordScene = () => {
-            const coordScene = new Scene()
-            const axesHelper = new AxesHelper(3);
-            coordScene.add(axesHelper);
-            return coordScene
-        }
-
-        render = () => {
-            this.renderScene(this.scene, this.camera, this.sceneView)
-
-            this.coordCamera.position.copy(this.camera.position);
-            this.coordCamera.lookAt(this.coordScene.position);
-
-            this.renderScene(this.coordScene, this.coordCamera, this.coordSceneView, true)
-        }
-
-        onWindowResize = () => {
-            this.camera.aspect = window.innerWidth / window.innerHeight
-            this.camera.updateProjectionMatrix()
-            this.renderer.setSize(window.innerWidth, window.innerHeight)
-            this.render()
-        }
-
-        renderScene = (scene, camera, sceneView, square = false) => {
-            const left = Math.floor(this.canvas.width * sceneView.left);
-            const bottom = Math.floor(this.canvas.height * sceneView.bottom);
-            const width = Math.floor(this.canvas.width * sceneView.width);
-            const height = Math.floor(this.canvas.height * sceneView.height);
-
-            if (square) {
-                this.renderer.setViewport(left, bottom, height, height);
-                this.renderer.setScissor(left, bottom, height, height);
-            } else {
-                this.renderer.setViewport(left, bottom, width, height);
-                this.renderer.setScissor(left, bottom, width, height);
-            }
-
-            this.renderer.setScissorTest(true);
-            this.renderer.render(scene, camera)
-        }
-
-        animate = () => {
-            requestAnimationFrame(this.animate)
-            this.controls.update()
-            this.render()
-            this.stats.update()
-        }
-
-        dismissProgress = () => {
-            setTimeout(() => this.progress.classList.add('hidden'), 500)
-        }
-
-        applyProgress = (progress) => {
-            this.adaptoxProgressBar.style.width = progress + '%'
-        }
-
-        onClickToggleDarkLight = (onClick) => {
-            this.toggleDarkLight.addEventListener('click', () => {
-                onClick()
-                this.toggleLightDarkLabel(this.darkSwitchLabel)
-                this.toggleLightDarkLabel(this.ligthSwitchLabel)
-            })
-
-        }
-
-        toggleLightDarkLabel = (element) => {
-            if (element.classList.contains('dark-label')) {
-                element.classList.remove('dark-label')
-                element.classList.add('light-label')
-            } else if (element.classList.contains('light-label')) {
-                element.classList.remove('light-label')
-                element.classList.add('dark-label')
-            }
-        }
-    }
-
-    const app = new App()
-
-    app.doOnProgress((progress) => app.applyProgress(progress))
-    app.doOnLoad(() => app.dismissProgress())
-    app.load()
-    app.animate()
-    app.onClickToggleDarkLight(() => app.toggleBackground())
-
-</script>
 </body>
 </html>
